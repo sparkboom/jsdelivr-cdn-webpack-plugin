@@ -3,9 +3,7 @@ import HtmlWebpackIncludeAssetsPlugin from 'html-webpack-include-assets-plugin';
 import ExternalModule from 'webpack/lib/ExternalModule';
 import resolvePkg from 'resolve-pkg';
 
-import getResolver from './get-resolver';
-
-const pluginName = 'dynamic-cdn-webpack-plugin';
+const pluginName = 'jsdelivr-cdn-webpack-plugin';
 let HtmlWebpackPlugin;
 try {
     // eslint-disable-next-line import/no-extraneous-dependencies
@@ -27,18 +25,24 @@ const getEnvironment = mode => {
     }
 };
 
-export default class DynamicCdnWebpackPlugin {
-    constructor({disable = false, env, exclude, only, verbose, resolver} = {}) {
-        if (exclude && only) {
-            throw new Error('You can\'t use \'exclude\' and \'only\' at the same time');
-        }
+export default class JSDelivrCdnWebpackPlugin {
+    constructor({disable = false, env, include, verbose, resolver} = {}) {
 
         this.disable = disable;
         this.env = env;
-        this.exclude = exclude || [];
-        this.only = only || null;
+        this.include = include || [];
         this.verbose = verbose === true;
-        this.resolver = getResolver(resolver);
+        this.resolver = (moduleName, version, options={}) => {
+            const min = options.env==='production'? '.min':'';
+            return {
+                name: moduleName,
+                var: null,
+                url: `https://cdn.jsdelivr.net/npm/${moduleName}@${version}/${moduleName}${min}.js`,
+                version
+            };
+        }
+        
+        getResolver(resolver);
 
         this.modulesFromCdn = {};
     }
@@ -82,9 +86,7 @@ export default class DynamicCdnWebpackPlugin {
     }
 
     async addModule(contextPath, modulePath, {env}) {
-        const isModuleExcluded = this.exclude.includes(modulePath) ||
-            (this.only && !this.only.includes(modulePath));
-        if (isModuleExcluded) {
+        if (!(modulePath in this.include)) {
             return false;
         }
 
@@ -105,7 +107,7 @@ export default class DynamicCdnWebpackPlugin {
 
         if (cdnConfig == null) {
             if (this.verbose) {
-                console.log(`❌ '${modulePath}' couldn't be found, please add it to https://github.com/mastilver/module-to-cdn/blob/master/modules.json`);
+                console.log(`❌ '${modulePath}' couldn't be found`);
             }
             return false;
         }

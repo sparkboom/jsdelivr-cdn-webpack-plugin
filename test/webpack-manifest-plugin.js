@@ -4,7 +4,7 @@ import fs from 'mz/fs';
 import test from 'ava';
 import ManifestPlugin from 'webpack-manifest-plugin';
 
-import DynamicCdnWebpackPlugin from '../src';
+import JSDelivrCdnWebpackPlugin from '../src';
 
 import runWebpack from './helpers/run-webpack';
 import cleanDir from './helpers/clean-dir';
@@ -28,7 +28,7 @@ test('webpack-manifest-plugin', async t => {
             new ManifestPlugin({
                 fileName: 'manifest.json'
             }),
-            new DynamicCdnWebpackPlugin()
+            new JSDelivrCdnWebpackPlugin()
         ]
     });
 

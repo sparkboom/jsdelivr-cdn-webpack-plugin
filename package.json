@@ -1,13 +1,12 @@
 {
-  "name": "dynamic-cdn-webpack-plugin",
+  "name": "jsdelivr-cdn-webpack-plugin",
   "version": "4.0.0",
-  "description": "Dynamically get your dependencies from a cdn rather than bundling them in your app",
+  "description": "Dynamically get your dependencies from JSDelivr cdn rather than bundling them in your app",
   "license": "MIT",
-  "repository": "mastilver/dynamic-cdn-webpack-plugin",
+  "repository": "sparkboom/jsdelivr-cdn-webpack-plugin",
   "author": {
-    "name": "Thomas Sileghem",
-    "email": "th.sileghem@gmail.com",
-    "url": "mastilver.com"
+    "name": "Matthew McLeod",
+    "email": "matt@sparkboom.com"
   },
   "engines": {
     "node": ">=4"
@@ -40,7 +39,6 @@
     "resolve-pkg": "^1.0.0"
   },
   "peerDependencies": {
-    "module-to-cdn": "sparkboom/module-to-cdn",
     "webpack": "4"
   },
   "devDependencies": {
@@ -52,7 +50,6 @@
     "babel-preset-env": "^1.6.1",
     "codecov": "^3.0.4",
     "html-webpack-plugin": "^3.0.4",
-    "module-to-cdn": "sparkboom/module-to-cdn",
     "mz": "^2.6.0",
     "nyc": "^12.0.2",
     "rimraf": "^2.6.1",
