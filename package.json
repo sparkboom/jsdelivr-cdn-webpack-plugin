@@ -1,0 +1,106 @@
+{
+  "name": "dynamic-cdn-webpack-plugin",
+  "version": "4.0.0",
+  "description": "Dynamically get your dependencies from a cdn rather than bundling them in your app",
+  "license": "MIT",
+  "repository": "mastilver/dynamic-cdn-webpack-plugin",
+  "author": {
+    "name": "Thomas Sileghem",
+    "email": "th.sileghem@gmail.com",
+    "url": "mastilver.com"
+  },
+  "engines": {
+    "node": ">=4"
+  },
+  "scripts": {
+    "test": "xo && nyc ava",
+    "prepublishOnly": "npm run build",
+    "version": "all-contributors generate",
+    "build": "babel src --out-dir lib",
+    "add-contributor": "all-contributors add"
+  },
+  "files": [
+    "index.js",
+    "lib"
+  ],
+  "keywords": [
+    "webpack",
+    "cdn",
+    "unpkg.com",
+    "html-webpack-plugin",
+    "webpack-manifest-plugin",
+    "html",
+    "script",
+    "assets",
+    "externals"
+  ],
+  "dependencies": {
+    "html-webpack-include-assets-plugin": "^1.0.4",
+    "read-pkg-up": "^4.0.0",
+    "resolve-pkg": "^1.0.0"
+  },
+  "peerDependencies": {
+    "module-to-cdn": "sparkboom/module-to-cdn",
+    "webpack": "4"
+  },
+  "devDependencies": {
+    "all-contributors-cli": "^5.4.0",
+    "ava": "^0.25.0",
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
+    "codecov": "^3.0.4",
+    "html-webpack-plugin": "^3.0.4",
+    "module-to-cdn": "sparkboom/module-to-cdn",
+    "mz": "^2.6.0",
+    "nyc": "^12.0.2",
+    "rimraf": "^2.6.1",
+    "webpack": "^4.17.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-manifest-plugin": "2.0.0-rc.2",
+    "xo": "^0.22.0"
+  },
+  "babel": {
+    "presets": [
+      [
+        "env",
+        {
+          "targets": {
+            "node": 6
+          }
+        }
+      ]
+    ],
+    "plugins": [
+      "transform-runtime"
+    ]
+  },
+  "xo": {
+    "esnext": true,
+    "space": 4,
+    "rules": {
+      "eqeqeq": "off",
+      "no-eq-null": "off"
+    },
+    "ignores": [
+      "test/fixtures/**/*.js"
+    ]
+  },
+  "ava": {
+    "files": [
+      "test/**/*.js",
+      "!test/fixtures/output/**/*"
+    ],
+    "babel": "inherit",
+    "require": [
+      "babel-core/register"
+    ]
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  }
+}
