@@ -14,9 +14,7 @@
   "scripts": {
     "test": "xo && nyc ava",
     "prepublishOnly": "npm run build",
-    "version": "all-contributors generate",
-    "build": "babel src --out-dir lib",
-    "add-contributor": "all-contributors add"
+    "build": "babel src --out-dir lib"
   },
   "files": [
     "index.js",
@@ -42,10 +40,10 @@
     "webpack": "4"
   },
   "devDependencies": {
-    "all-contributors-cli": "^5.4.0",
     "ava": "^0.25.0",
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
+    "babel-eslint": "^10.0.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-env": "^1.6.1",
     "codecov": "^3.0.4",
