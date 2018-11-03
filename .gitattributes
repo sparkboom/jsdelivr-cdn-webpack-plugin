@@ -1,0 +1,3 @@
+yarn.json -diff
+* text=auto
+bin/* eol=lf
