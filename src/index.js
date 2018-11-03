@@ -4,14 +4,6 @@ import ExternalModule from 'webpack/lib/ExternalModule';
 import resolvePkg from 'resolve-pkg';
 
 const pluginName = 'jsdelivr-cdn-webpack-plugin';
-let HtmlWebpackPlugin;
-try {
-    // eslint-disable-next-line import/no-extraneous-dependencies
-    HtmlWebpackPlugin = require('html-webpack-plugin');
-} catch (err) {
-    HtmlWebpackPlugin = null;
-}
-
 const moduleRegex = /^((?:@[a-z0-9][\w-.]+\/)?[a-z0-9][\w-.]*)/;
 
 const getEnvironment = mode => {
@@ -25,34 +17,37 @@ const getEnvironment = mode => {
     }
 };
 
-export default class JSDelivrCdnWebpackPlugin {
-    constructor({disable = false, env, include, verbose, resolver} = {}) {
+const defaultResolver = (moduleName, version, options = {}) => {
+    const min = options.env === 'production' ? '.min' : '';
+    return {
+        name: moduleName,
+        var: null,
+        url: `https://cdn.jsdelivr.net/npm/${moduleName}@${version}/${moduleName}${min}.js`,
+        version,
+    };
+};
 
+class JSDelivrCdnWebpackPlugin {
+    constructor({ disable = false, env, include, verbose, resolver } = {}) {
         this.disable = disable;
         this.env = env;
         this.include = include || [];
         this.verbose = verbose === true;
-        this.resolver = (moduleName, version, options={}) => {
-            const min = options.env==='production'? '.min':'';
-            return {
-                name: moduleName,
-                var: null,
-                url: `https://cdn.jsdelivr.net/npm/${moduleName}@${version}/${moduleName}${min}.js`,
-                version
-            };
-        }
-        
-        getResolver(resolver);
+        this.resolver = resolver || defaultResolver;
 
         this.modulesFromCdn = {};
     }
 
     apply(compiler) {
         if (!this.disable) {
-            this.execute(compiler, {env: this.env || getEnvironment(compiler.options.mode)});
+            this.execute(compiler, {
+                env: this.env || getEnvironment(compiler.options.mode),
+            });
         }
 
-        const isUsingHtmlWebpackPlugin = HtmlWebpackPlugin != null && compiler.options.plugins.some(x => x instanceof HtmlWebpackPlugin);
+        const isUsingHtmlWebpackPlugin = compiler.options.plugins.some(
+            x => x.constructor && x.constructor.name === 'HtmlWebpackPlugin',
+        );
 
         if (isUsingHtmlWebpackPlugin) {
             this.applyHtmlWebpackPlugin(compiler);
@@ -61,7 +56,7 @@ export default class JSDelivrCdnWebpackPlugin {
         }
     }
 
-    execute(compiler, {env}) {
+    execute(compiler, { env }) {
         compiler.hooks.normalModuleFactory.tap(pluginName, nmf => {
             nmf.hooks.factory.tap(pluginName, factory => async (data, cb) => {
                 const modulePath = data.dependencies[0].request;
@@ -72,7 +67,9 @@ export default class JSDelivrCdnWebpackPlugin {
                     return factory(data, cb);
                 }
 
-                const varName = await this.addModule(contextPath, modulePath, {env});
+                const varName = await this.addModule(contextPath, modulePath, {
+                    env,
+                });
 
                 if (varName === false) {
                     factory(data, cb);
@@ -85,17 +82,23 @@ export default class JSDelivrCdnWebpackPlugin {
         });
     }
 
-    async addModule(contextPath, modulePath, {env}) {
-        if (!(modulePath in this.include)) {
+    async addModule(contextPath, modulePath, { env }) {
+        if (!this.include.includes(modulePath)) {
             return false;
         }
 
         const moduleName = modulePath.match(moduleRegex)[1];
-        const {pkg: {version, peerDependencies}} = await readPkgUp({cwd: resolvePkg(moduleName, {cwd: contextPath})});
+
+        const {
+            pkg: { version, peerDependencies },
+        } = await readPkgUp({
+            cwd: resolvePkg(moduleName, { cwd: contextPath }),
+        });
 
         const isModuleAlreadyLoaded = Boolean(this.modulesFromCdn[modulePath]);
         if (isModuleAlreadyLoaded) {
-            const isSameVersion = this.modulesFromCdn[modulePath].version === version;
+            const isSameVersion =
+                this.modulesFromCdn[modulePath].version === version;
             if (isSameVersion) {
                 return this.modulesFromCdn[modulePath].var;
             }
@@ -103,7 +106,7 @@ export default class JSDelivrCdnWebpackPlugin {
             return false;
         }
 
-        const cdnConfig = await this.resolver(modulePath, version, {env});
+        const cdnConfig = await this.resolver(modulePath, version, { env });
 
         if (cdnConfig == null) {
             if (this.verbose) {
@@ -113,13 +116,19 @@ export default class JSDelivrCdnWebpackPlugin {
         }
 
         if (this.verbose) {
-            console.log(`✔️ '${cdnConfig.name}' will be served by ${cdnConfig.url}`);
+            console.log(
+                `✔️ '${cdnConfig.name}' will be served by ${cdnConfig.url}`,
+            );
         }
 
         if (peerDependencies) {
-            const arePeerDependenciesLoaded = (await Promise.all(Object.keys(peerDependencies).map(peerDependencyName => {
-                return this.addModule(contextPath, peerDependencyName, {env});
-            })))
+            const arePeerDependenciesLoaded = (await Promise.all(
+                Object.keys(peerDependencies).map(peerDependencyName => {
+                    return this.addModule(contextPath, peerDependencyName, {
+                        env,
+                    });
+                }),
+            ))
                 .map(x => Boolean(x))
                 .reduce((result, x) => result && x, true);
 
@@ -135,7 +144,9 @@ export default class JSDelivrCdnWebpackPlugin {
 
     applyWebpackCore(compiler) {
         compiler.hooks.afterCompile.tapAsync(pluginName, (compilation, cb) => {
-            for (const [name, cdnConfig] of Object.entries(this.modulesFromCdn)) {
+            for (const [name, cdnConfig] of Object.entries(
+                this.modulesFromCdn,
+            )) {
                 compilation.addChunkInGroup(name);
                 const chunk = compilation.addChunk(name);
                 chunk.files.push(cdnConfig.url);
@@ -149,23 +160,27 @@ export default class JSDelivrCdnWebpackPlugin {
         const includeAssetsPlugin = new HtmlWebpackIncludeAssetsPlugin({
             assets: [],
             publicPath: '',
-            append: false
+            append: false,
         });
 
         includeAssetsPlugin.apply(compiler);
 
         compiler.hooks.afterCompile.tapAsync(pluginName, (compilation, cb) => {
-            const assets = Object.values(this.modulesFromCdn).map(moduleFromCdn => moduleFromCdn.url);
+            const assets = Object.values(this.modulesFromCdn).map(
+                moduleFromCdn => moduleFromCdn.url,
+            );
 
             // HACK: Calling the constructor directly is not recomended
             //       But that's the only secure way to edit `assets` afterhand
             includeAssetsPlugin.constructor({
                 assets,
                 publicPath: '',
-                append: false
+                append: false,
             });
 
             cb();
         });
     }
 }
+
+export default JSDelivrCdnWebpackPlugin;
