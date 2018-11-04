@@ -73,10 +73,11 @@
   },
   "xo": {
     "esnext": true,
-    "space": 4,
+    "space": 2,
     "rules": {
       "eqeqeq": "off",
-      "no-eq-null": "off"
+      "no-eq-null": "off",
+      "comma-dangle": "off"
     },
     "ignores": [
       "test/fixtures/**/*.js"

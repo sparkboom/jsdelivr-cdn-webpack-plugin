@@ -13,7 +13,7 @@ test('html-webpack-plugin', async t => {
     await cleanDir(path.resolve(__dirname, './fixtures/output/html-webpack-plugin'));
 
     await runWebpack({
-        context: path.resolve(__dirname, './fixtures/app'),
+        context: path.resolve(__dirna§me, './fixtures/app'),
 
         output: {
             publicPath: '/',
