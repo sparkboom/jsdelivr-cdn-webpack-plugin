@@ -10,34 +10,42 @@ import runWebpack from './helpers/run-webpack';
 import cleanDir from './helpers/clean-dir';
 
 test('html-webpack-plugin', async t => {
-    await cleanDir(path.resolve(__dirname, './fixtures/output/html-webpack-plugin'));
+  await cleanDir(
+    path.resolve(__dirname, './fixtures/output/html-webpack-plugin'),
+  );
 
-    await runWebpack({
-        context: path.resolve(__dirna§me, './fixtures/app'),
+  await runWebpack({
+    context: path.resolve(__dirname, './fixtures/app'),
 
-        output: {
-            publicPath: '/',
-            path: path.resolve(__dirname, './fixtures/output/html-webpack-plugin')
-        },
+    output: {
+      publicPath: '/',
+      path: path.resolve(__dirname, './fixtures/output/html-webpack-plugin'),
+    },
 
-        entry: {
-            app: './single.js'
-        },
+    entry: {
+      app: './single.js',
+    },
 
-        plugins: [
-            new HtmlWebpackPlugin(),
-            new JSDelivrCdnWebpackPlugin()
-        ]
-    });
+    plugins: [new HtmlWebpackPlugin(), new JSDelivrCdnWebpackPlugin()],
+  });
 
-    const indexFile = await fs.readFile(path.resolve(__dirname, './fixtures/output/html-webpack-plugin/index.html'), {encoding: 'utf-8'});
+  const indexFile = await fs.readFile(
+    path.resolve(__dirname, './fixtures/output/html-webpack-plugin/index.html'),
+    {
+      encoding: 'utf-8',
+    },
+  );
 
-    t.true(indexFile.includes('src="/app.js"'));
-    t.true(indexFile.includes('src="https://unpkg.com/react@15.6.1/dist/react.js"'));
+  t.true(indexFile.includes('src="/app.js"'));
+  t.true(
+    indexFile.includes('src="https://unpkg.com/react@15.6.1/dist/react.js"'),
+  );
 
-    const output = await fs.readFile(path.resolve(__dirname, './fixtures/output/html-webpack-plugin/app.js'));
+  const output = await fs.readFile(
+    path.resolve(__dirname, './fixtures/output/html-webpack-plugin/app.js'),
+  );
 
-    // NOTE: not inside t.false to prevent ava to display whole file in console
-    const doesIncludeReact = output.includes('PureComponent');
-    t.false(doesIncludeReact);
+  // NOTE: not inside t.false to prevent ava to display whole file in console
+  const doesIncludeReact = output.includes('PureComponent');
+  t.false(doesIncludeReact);
 });

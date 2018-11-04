@@ -77,7 +77,10 @@
     "rules": {
       "eqeqeq": "off",
       "no-eq-null": "off",
-      "comma-dangle": "off"
+      "comma-dangle": "off",
+      "object-curly-spacing": "off",
+      "space-before-function-paren": "off",
+      "quotes": "off"
     },
     "ignores": [
       "test/fixtures/**/*.js"
