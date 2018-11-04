@@ -32,6 +32,7 @@
     "externals"
   ],
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
     "html-webpack-include-assets-plugin": "^1.0.4",
     "read-pkg-up": "^4.0.0",
     "resolve-pkg": "^1.0.0"
@@ -93,6 +94,7 @@
     ],
     "babel": "inherit",
     "require": [
+      "babel-polyfill",
       "babel-core/register"
     ]
   },
